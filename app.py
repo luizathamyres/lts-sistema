@@ -1,9 +1,10 @@
 import streamlit as st
 from supabase import create_client
+from datetime import date
 
 # Configuração da página
 st.set_page_config(
-    page_title="LTS Construtora",
+    page_title="LUIZA THAMYRES CONSTRUTORA",
     page_icon="🏗️",
     layout="wide"
 )
@@ -13,6 +14,31 @@ SUPABASE_URL = "https://kmhnyticqfrgevcbatuw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttaG55dGljcWZyZ2V2Y2JhdHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0ODg4ODEsImV4cCI6MjEwMjA2NDg4MX0.FUGbRuU7S_yV5DlPjSaALxTm4FvUFbLPYGKDj7m2hMo"
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# ── Funções de formatação ──────────────────────────────────────────────
+def formatar_cpf(cpf):
+    cpf = ''.join(filter(str.isdigit, cpf))
+    if len(cpf) <= 3:
+        return cpf
+    elif len(cpf) <= 6:
+        return f"{cpf[:3]}.{cpf[3:]}"
+    elif len(cpf) <= 9:
+        return f"{cpf[:3]}.{cpf[3:6]}.{cpf[6:]}"
+    else:
+        return f"{cpf[:3]}.{cpf[3:6]}.{cpf[6:9]}-{cpf[9:11]}"
+
+def formatar_telefone(tel):
+    tel = ''.join(filter(str.isdigit, tel))
+    if len(tel) <= 2:
+        return f"({tel}"
+    elif len(tel) <= 3:
+        return f"({tel[:2]}) {tel[2:]}"
+    elif len(tel) <= 7:
+        return f"({tel[:2]}) {tel[2:3]} {tel[3:]}"
+    elif len(tel) <= 11:
+        return f"({tel[:2]}) {tel[2:3]} {tel[3:7]}-{tel[7:]}"
+    else:
+        return f"({tel[:2]}) {tel[2:3]} {tel[3:7]}-{tel[7:11]}"
 
 # Menu lateral
 st.sidebar.title("🏗️ LTS Construtora")
@@ -62,7 +88,7 @@ elif menu == "👥 Clientes":
     with aba[0]:
         st.subheader("Cadastrar Novo Cliente")
 
-        # Estado civil FORA do form para reagir imediatamente
+        # Estado civil fora do form para reagir imediatamente
         estado_civil = st.selectbox("Estado civil", [
             "Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União estável"
         ])
@@ -71,11 +97,31 @@ elif menu == "👥 Clientes":
             col1, col2 = st.columns(2)
             with col1:
                 nome = st.text_input("Nome completo *")
-                cpf = st.text_input("CPF *")
+
+                cpf_raw = st.text_input("CPF * (somente números)", max_chars=11,
+                                         placeholder="00000000000")
+                cpf = formatar_cpf(cpf_raw)
+                if cpf_raw:
+                    st.caption(f"CPF formatado: **{cpf}**")
+
                 rg = st.text_input("RG")
-                data_nascimento = st.date_input("Data de nascimento")
-                telefone = st.text_input("Telefone *")
+
+                data_nascimento = st.date_input(
+                    "Data de nascimento",
+                    value=date(1990, 1, 1),
+                    min_value=date(1900, 1, 1),
+                    max_value=date.today(),
+                    format="DD/MM/YYYY"
+                )
+
+                tel_raw = st.text_input("Telefone * (somente números)", max_chars=11,
+                                         placeholder="00900000000")
+                telefone = formatar_telefone(tel_raw)
+                if tel_raw:
+                    st.caption(f"Telefone formatado: **{telefone}**")
+
                 email = st.text_input("E-mail")
+
             with col2:
                 profissao = st.text_input("Profissão")
                 escolaridade = st.selectbox("Grau de escolaridade", [
@@ -86,9 +132,10 @@ elif menu == "👥 Clientes":
                 endereco = st.text_input("Endereço")
                 cidade = st.text_input("Cidade")
 
-            # Dados do cônjuge — aparece automaticamente se casado
+            # Dados do cônjuge
             conjuge_nome = conjuge_cpf = conjuge_rg = ""
             conjuge_profissao = conjuge_estado_civil = ""
+            conjuge_telefone = ""
 
             if estado_civil in ["Casado(a)", "União estável"]:
                 st.markdown("---")
@@ -96,18 +143,37 @@ elif menu == "👥 Clientes":
                 col3, col4 = st.columns(2)
                 with col3:
                     conjuge_nome = st.text_input("Nome do cônjuge")
-                    conjuge_cpf = st.text_input("CPF do cônjuge")
+
+                    conjuge_cpf_raw = st.text_input("CPF do cônjuge (somente números)",
+                                                     max_chars=11,
+                                                     placeholder="00000000000")
+                    conjuge_cpf = formatar_cpf(conjuge_cpf_raw)
+                    if conjuge_cpf_raw:
+                        st.caption(f"CPF cônjuge: **{conjuge_cpf}**")
+
                     conjuge_rg = st.text_input("RG do cônjuge")
+
                 with col4:
                     conjuge_profissao = st.text_input("Profissão do cônjuge")
                     conjuge_estado_civil = st.text_input("Estado civil do cônjuge")
+
+                    conjuge_tel_raw = st.text_input("Telefone do cônjuge (somente números)",
+                                                     max_chars=11,
+                                                     placeholder="00900000000")
+                    conjuge_telefone = formatar_telefone(conjuge_tel_raw)
+                    if conjuge_tel_raw:
+                        st.caption(f"Telefone cônjuge: **{conjuge_telefone}**")
 
             observacoes = st.text_area("Observações")
             salvar = st.form_submit_button("💾 Salvar Cliente", use_container_width=True)
 
             if salvar:
-                if not nome or not cpf or not telefone:
+                if not nome or not cpf_raw or not tel_raw:
                     st.error("⚠️ Preencha os campos obrigatórios: Nome, CPF e Telefone.")
+                elif len(cpf_raw) < 11:
+                    st.error("⚠️ CPF incompleto — digite os 11 números.")
+                elif len(tel_raw) < 10:
+                    st.error("⚠️ Telefone incompleto — digite DDD + número.")
                 else:
                     try:
                         dados = {
@@ -164,7 +230,7 @@ elif menu == "👥 Clientes":
                                 st.write(f"**Escolaridade:** {cliente.get('escolaridade','—')}")
                             with col2:
                                 st.write(f"**RG:** {cliente.get('rg','—')}")
-                                st.write(f"**Data de nascimento:** {cliente.get('data_nascimento','—')}")
+                                st.write(f"**Nascimento:** {cliente.get('data_nascimento','—')}")
                                 st.write(f"**Endereço:** {cliente.get('endereco','—')}")
                                 st.write(f"**Cidade:** {cliente.get('cidade','—')}")
                             if cliente.get('conjuge_nome'):
@@ -206,4 +272,4 @@ elif menu == "👥 Clientes":
 # ══════════════════════════════════════════════
 else:
     st.title("🚧 Módulo em construção")
-    st.info("Este módulo será desenvolvido em breve. Use o menu lateral para navegar.")
+    st.info("Este módulo será desenvolvido em breve.")
