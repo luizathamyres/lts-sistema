@@ -1,5 +1,5 @@
 import streamlit as st
-from supabase import create_client
+from supabase import create_Client
 from datetime import date
 
 st.set_page_config(
@@ -11,7 +11,7 @@ st.set_page_config(
 SUPABASE_URL = "https://kmhnyticqfrgevcbatuw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttaG55dGljcWZyZ2V2Y2JhdHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0ODg4ODEsImV4cCI6MjEwMjA2NDg4MX0.FUGbRuU7S_yV5DlPjSaALxTm4FvUFbLPYGKDj7m2hMo"
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase = create_Client(SUPABASE_URL, SUPABASE_KEY)
 
 def formatar_cpf(cpf):
     cpf = ''.join(filter(str.isdigit, cpf))
@@ -210,7 +210,7 @@ elif menu == "👥 Clientes":
 
                 if resultado:
                     st.success(f"{len(resultado)} cliente(s) encontrado(s)")
-                    for cliente in resultado:
+                    for Cliente in resultado:
                         with st.expander(f"👤 {cliente['nome']} — CPF: {cliente['cpf']}"):
                             col1, col2 = st.columns(2)
                             with col1:
