@@ -4,7 +4,7 @@ from datetime import date
 
 # Configuração da página
 st.set_page_config(
-    page_title="LUIZA THAMYRES CONSTRUTORA",
+    page_title="LTS - Sistema de gestão",
     page_icon="🏗️",
     layout="wide"
 )
@@ -41,7 +41,7 @@ def formatar_telefone(tel):
         return f"({tel[:2]}) {tel[2:3]} {tel[3:7]}-{tel[7:11]}"
 
 # Menu lateral
-st.sidebar.title("🏗️ LTS Construtora")
+st.sidebar.title("LUIZA THAMYRES | Construções e Serviços🏗️")
 st.sidebar.markdown("---")
 
 menu = st.sidebar.selectbox("Navegação", [
