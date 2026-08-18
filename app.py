@@ -1,5 +1,5 @@
 import streamlit as st
-from supabase import create_Client
+from supabase import create_client
 from datetime import date
 
 st.set_page_config(
@@ -11,7 +11,7 @@ st.set_page_config(
 SUPABASE_URL = "https://kmhnyticqfrgevcbatuw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImttaG55dGljcWZyZ2V2Y2JhdHV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0ODg4ODEsImV4cCI6MjEwMjA2NDg4MX0.FUGbRuU7S_yV5DlPjSaALxTm4FvUFbLPYGKDj7m2hMo"
 
-supabase = create_Client(SUPABASE_URL, SUPABASE_KEY)
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def formatar_cpf(cpf):
     cpf = ''.join(filter(str.isdigit, cpf))
@@ -83,7 +83,6 @@ elif menu == "👥 Clientes":
     with aba[0]:
         st.subheader("Cadastrar Novo Cliente")
 
-        # ── Todos os campos FORA do form para formatação em tempo real
         estado_civil = st.selectbox("Estado civil", [
             "Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União estável"
         ])
@@ -126,7 +125,6 @@ elif menu == "👥 Clientes":
             endereco = st.text_input("Endereço")
             cidade = st.text_input("Cidade")
 
-        # ── Dados do cônjuge
         conjuge_nome = conjuge_cpf = conjuge_rg = ""
         conjuge_profissao = conjuge_estado_civil = conjuge_telefone = ""
 
@@ -158,7 +156,6 @@ elif menu == "👥 Clientes":
         observacoes = st.text_area("Observações")
         st.markdown("---")
 
-        # ── Botão de salvar FORA do form
         if st.button("💾 Salvar Cliente", use_container_width=True, type="primary"):
             if not nome or not cpf_raw or not tel_raw:
                 st.error("⚠️ Preencha os campos obrigatórios: Nome, CPF e Telefone.")
@@ -200,7 +197,6 @@ elif menu == "👥 Clientes":
 
         if busca:
             try:
-                # Busca por nome E cpf numa consulta só
                 todos = supabase.table("clientes").select("*").execute().data
                 resultado = [
                     c for c in todos
@@ -210,7 +206,7 @@ elif menu == "👥 Clientes":
 
                 if resultado:
                     st.success(f"{len(resultado)} cliente(s) encontrado(s)")
-                    for Cliente in resultado:
+                    for cliente in resultado:
                         with st.expander(f"👤 {cliente['nome']} — CPF: {cliente['cpf']}"):
                             col1, col2 = st.columns(2)
                             with col1:
